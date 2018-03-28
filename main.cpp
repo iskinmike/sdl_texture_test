@@ -34,7 +34,7 @@ std::string init(int pos_x, int pos_y, int _width, int _height)
     }
 
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12,
-                            SDL_TEXTUREACCESS_TARGET, width, height);
+                            SDL_TEXTUREACCESS_STREAMING, width, height);
 
     return std::string{};
 }
