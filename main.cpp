@@ -87,10 +87,12 @@ void setFrame(){
 
 
 void frameThread(){
+//    init(200,200, 400,400);
     while(true) {
         setFrame();
         usleep(20000);
     }
+
 }
 
 int main(int argc, char const *argv[])
@@ -98,8 +100,11 @@ int main(int argc, char const *argv[])
 
     init(200,200, 400,400);
 
-    std::thread thread = std::thread([] {return frameThread();});
-    thread.detach();
+//    std::thread thread = std::thread([] {return frameThread();});
+//    thread.detach();
+
+    SDL_Thread* thread = SDL_CreateThread([](void*) -> int {frameThread(); return 0;}, "test", NULL);
+    SDL_DetachThread(thread);
 
     for (int i = 0; i <5; ++i){
         sleep(1);
