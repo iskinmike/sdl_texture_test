@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 set(LIBS 
   SDL2
+  pthread
   )
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})

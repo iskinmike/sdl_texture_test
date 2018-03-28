@@ -4,15 +4,13 @@
 #include <string>
 #include <unistd.h>
 #include <iostream>
-
-extern "C" { // based on: https://stackoverflow.com/questions/24487203/ffmpeg-undefined-reference-to-avcodec-register-all-does-not-link
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-}
+#include <thread>
 
 int width, height;
 SDL_Window* screen;
 SDL_Renderer* renderer;
+
+int counter = 0;
 
 std::string title("CAM");
 
@@ -51,26 +49,13 @@ void setFrame(){
     SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12,
                             SDL_TEXTUREACCESS_TARGET, width, height);
 
-//    SDL_Surface *BMP_background = SDL_LoadBMP("..\\background.bmp");
-//    if (BMP_background == nullptr){
-//        std::cout << "SDL_LoadBMP Error: " << SDL_GetError() << std::endl;
-//        return ;
-//    }
-
-//    SDL_Texture *background = SDL_CreateTextureFromSurface(renderer, BMP_background);
-//    SDL_FreeSurface(BMP_background); //Очищение памяти поверхности
-//    if (player == nullptr){
-//        std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-//        return 1;
-//    }
-
     frame.linesize[0] = 400;
     frame.linesize[1] = 200;
     frame.linesize[2] = 200;
 
     /* Y */
     int x,y;
-    int i = 1;
+    int i = counter++;
     for (y = 0; y < height; y++)
         for (x = 0; x < width; x++)
             frame.data[0][y * frame.linesize[0] + x] = x + y + i * 3;
@@ -96,9 +81,16 @@ void setFrame(){
 
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
-//    SDL_RenderCopy(renderer, background, NULL, NULL);
     SDL_RenderPresent(renderer);
     SDL_DestroyTexture(texture);
+}
+
+
+void frameThread(){
+    while(true) {
+        setFrame();
+        usleep(20000);
+    }
 }
 
 int main(int argc, char const *argv[])
@@ -106,8 +98,10 @@ int main(int argc, char const *argv[])
 
     init(200,200, 400,400);
 
+    std::thread thread = std::thread([] {return frameThread();});
+    thread.detach();
+
     for (int i = 0; i <5; ++i){
-        setFrame();
         sleep(1);
         std::cout << "sleep: " << i << std::endl;
     }
