@@ -9,6 +9,7 @@
 int width, height;
 SDL_Window* screen;
 SDL_Renderer* renderer;
+SDL_Texture *texture;
 
 int counter = 0;
 
@@ -31,6 +32,10 @@ std::string init(int pos_x, int pos_y, int _width, int _height)
     if (!renderer) {
         return std::string("SDL: could not create renderer - exiting");
     }
+
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12,
+                            SDL_TEXTUREACCESS_TARGET, width, height);
+
     return std::string{};
 }
 
@@ -46,8 +51,7 @@ struct Frame{
 } frame;
 
 void setFrame(){
-    SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12,
-                            SDL_TEXTUREACCESS_TARGET, width, height);
+
 
     frame.linesize[0] = 400;
     frame.linesize[1] = 200;
@@ -82,7 +86,7 @@ void setFrame(){
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(texture);
+//    SDL_DestroyTexture(texture);
 }
 
 
@@ -100,11 +104,11 @@ int main(int argc, char const *argv[])
 
     init(200,200, 400,400);
 
-//    std::thread thread = std::thread([] {return frameThread();});
-//    thread.detach();
+    std::thread thread = std::thread([] {return frameThread();});
+    thread.detach();
 
-    SDL_Thread* thread = SDL_CreateThread([](void*) -> int {frameThread(); return 0;}, "test", NULL);
-    SDL_DetachThread(thread);
+//    SDL_Thread* thread = SDL_CreateThread([](void*) -> int {frameThread(); return 0;}, "test", NULL);
+//    SDL_DetachThread(thread);
 
     for (int i = 0; i <5; ++i){
         sleep(1);
